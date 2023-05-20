@@ -39,6 +39,19 @@ async function run() {
       const result = await toyCollection.findOne(query);
       res.send(result);
     });
+    //read by subcategory
+    app.get("/toys-by-subcategory", async (req, res) => {
+      const cursor = toyCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // api to get all toys info by subcategory
+    app.get("/toys-by-subcategory/:subCategory", async (req, res) => {
+      const subCategory = req.params.subCategory;
+      const query = { subCategory: subCategory };
+      const result = await toyCollection.find(query).toArray();
+      res.send(result);
+    });
     //update
     app.patch("/all-toys/:id", async (req, res) => {
       const id = req.params.id;
