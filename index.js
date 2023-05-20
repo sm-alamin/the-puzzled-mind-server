@@ -33,12 +33,29 @@ async function run() {
       res.send(result);
     });
     //common api to get all toys by id
-    app.get('/all-toys/:id', async(req,res)=> {
+    app.get("/all-toys/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await toyCollection.findOne(query);
-      res.send(result)
-    })
+      res.send(result);
+    });
+    //update
+    app.patch("/all-toys/:id", async (req, res) => {
+      const id = req.params.id;
+      const toy = req.body;
+      console.log(id, toy);
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedToy = {
+        $set: {
+          price: toy.price,
+          availableQuantity: toy.availableQuantity,
+          description: toy.description,
+        },
+      };
+      const result = await toyCollection.updateOne(filter, updatedToy, options);
+      res.send(result);
+    });
     //create
     app.post("/add-toy", async (req, res) => {
       const toy = req.body;
@@ -48,7 +65,7 @@ async function run() {
     });
 
     //delete
-    app.delete("/all-toys/:id", async(req, res) => {
+    app.delete("/all-toys/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await toyCollection.deleteOne(query);
