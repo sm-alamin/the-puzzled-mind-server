@@ -23,26 +23,30 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-     client.connect();
+    client.connect();
 
     const toyCollection = client.db("allToysDb").collection("allToysInfo");
     //read
     app.get("/all-toys", async (req, res) => {
-      const { sortBy, sortOrder } = req.query;
-    
-      // Define the sort options based on the sortBy and sortOrder parameters
+      const { limit, sortBy, sortOrder } = req.query;
+
       let sortOptions = {};
       if (sortBy === "price") {
-        sortOptions = { price: sortOrder === "desc" ? -1 : 1 }; // Sort by price in the specified order
+        sortOptions = { price: sortOrder === "desc" ? -1 : 1 };
       } else if (sortBy === "sellerEmail") {
-        sortOptions = { sellerEmail: sortOrder === "desc" ? -1 : 1 }; // Sort by sellerEmail in the specified order
+        sortOptions = { sellerEmail: sortOrder === "desc" ? -1 : 1 };
       }
-    
-      const cursor = toyCollection.find().sort(sortOptions);
-      const result = await cursor.toArray();
+
+      let query = toyCollection.find().sort(sortOptions);
+      if (limit) {
+        const limitNum = parseInt(limit);
+        query = query.limit(limitNum);
+      }
+
+      const result = await query.toArray();
       res.send(result);
     });
-    
+
     //common api to get all toys by id
     app.get("/all-toys/:id", async (req, res) => {
       const id = req.params.id;
